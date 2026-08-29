@@ -1,4 +1,17 @@
-# Curation notice
+# 선별 및 저작권 안내
 
-This repository contains a portfolio-oriented subset of a team project. It does not claim ownership of the entire project. The complete source and project history remain in the original repository.
+이 저장소는 3인 팀 프로젝트에서 네트워크 담당 범위를 설명하기 위해 구성한 포트폴리오 선별본입니다. 프로젝트 전체에 대한 단독 소유권이나 단독 구현을 주장하지 않습니다.
 
+포함 범위:
+
+- 담당 범위와 코드 근거가 함께 확인되는 C# 스크립트
+- 구조·기여 범위·검증 근거를 설명하는 포트폴리오 문서
+
+제외 범위:
+
+- 팀원이 구현한 기능과 프로젝트 전체 소스
+- 개인정보와 서비스 자격증명 또는 설정
+- 강의·과제 자료, 제3자 에셋과 패키지 샘플 코드
+- 실행 파일, Unity 캐시와 중간 빌드 산출물
+
+별도의 라이선스가 명시되지 않은 한 이 저장소의 코드는 재사용 라이선스를 부여하지 않습니다. Unity 및 각 패키지·에셋의 권리는 해당 권리자에게 있습니다.

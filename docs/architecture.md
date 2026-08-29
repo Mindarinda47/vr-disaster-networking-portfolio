@@ -1,26 +1,39 @@
 # 네트워크 구조
 
+## 실행 역할
+
+- **PC Host/Server:** 세션 시작, VR 플레이어 생성, 관제 화면과 미니맵 상호작용 관리
+- **VR Client:** 서버 접속, XR Origin 활성화, HMD·양손 위치 갱신
+- **Vivox:** SDK와 제공 샘플을 활용한 음성 서비스 연동
+
 ```mermaid
-flowchart LR
-  Host[Host / Server] -->|NetworkObject 생성| Players[VR Players]
-  Client[Client] -->|ServerRpc 요청| Host
-  Host -->|ClientRpc 응답| Client
-  Players --> Sync[Transform 동기화]
-  Host --> PC[PC 관제와 미니맵]
-  Players <--> Voice[Vivox 음성 채팅]
+sequenceDiagram
+    participant PC as PC Host / Server
+    participant NM as NetworkObjectManager
+    participant VR as VR Client
+
+    PC->>PC: StartHost()
+    VR->>PC: StartClient() 후 연결
+    VR->>PC: LoadVRSceneServerRPC(clientId)
+    PC->>PC: VR Player 생성 및 SpawnAsPlayerObject
+    PC->>VR: 플레이어 소유권과 XR Origin 설정
+    PC->>NM: NetworkObject 등록
+    NM-->>PC: 등록 완료 후 관제 카메라 연결
+    VR-->>PC: HMD·양손 Transform 동기화
+    PC->>PC: 미니맵 입력을 월드 좌표로 변환
+    PC->>VR: 마커·화재 NetworkObject 동기화
 ```
 
-## 연결과 생성
+## 권한 설계
 
-1. 사용자가 Host 또는 Client 연결을 선택합니다.
-2. Client는 입력된 접속 정보를 이용해 연결합니다.
-3. 서버가 네트워크 오브젝트의 생성과 등록을 관리합니다.
-4. 클라이언트별 XR Origin과 플레이어 표현을 활성화합니다.
-5. 생성 완료 후 위치 이동과 관제 화면 연결을 수행합니다.
+| 대상 | 권한 | 선택 이유 | 관련 코드 |
+| --- | --- | --- | --- |
+| VR 플레이어 생성 | Server | 접속 Client ID에 맞춰 생성과 등록을 일관되게 관리 | [`NetworkConnect.cs`](../src/networking/NetworkConnect.cs) |
+| HMD·양손 Transform | Owner Client | VR 입력 반응성을 유지 | [`NetworkPlayer.cs`](../src/networking/NetworkPlayer.cs), [`NetworkTransformClient.cs`](../src/networking/NetworkTransformClient.cs) |
+| 미니맵 마커·화재 | Server | 모든 사용자에게 동일한 공유 상태 제공 | [`minimapClickHandler.cs`](../src/networking/minimapClickHandler.cs) |
+| 층 이동 요청 | ServerRpc → ClientRpc | 요청 주체와 적용 결과를 네트워크에 반영 | [`PlayerSpawnPlace.cs`](../src/networking/PlayerSpawnPlace.cs) |
+| XR Origin 활성화 | Targeted ClientRpc | 지정 Client에만 VR 장치 구성을 적용 | [`XrOriginManager.cs`](../src/networking/XrOriginManager.cs) |
 
-## 권한 선택
+## 생성 순서 처리
 
-- 화재와 마커처럼 공유 상태에 영향을 주는 오브젝트는 서버 요청을 거쳐 생성합니다.
-- 플레이어 이동은 VR 입력 반응성을 고려해 클라이언트 권한 Transform을 사용합니다.
-- 특정 사용자에게만 필요한 처리는 대상 ClientRpc로 전달합니다.
-
+플레이어가 생성되기 전에 관제 카메라나 이동 UI가 접근하면 참조가 비어 있을 수 있습니다. `NetworkObjectManager`가 생성된 오브젝트를 등록하고, 의존 기능은 등록 완료를 기다린 뒤 초기화하도록 구성했습니다.
