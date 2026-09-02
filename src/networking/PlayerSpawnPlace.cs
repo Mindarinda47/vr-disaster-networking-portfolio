@@ -2,15 +2,11 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
-using UnityEngine.XR.Interaction.Toolkit;
 
 
 public class PlayerSpawnPlace : NetworkBehaviour
 {
     public Dropdown floorDropdown;
-    public Transform firstFloorPosition;
-    public Transform secondFloorPosition;
-    public Transform thirdFloorPosition;
     public Vector3 firstFloor = new Vector3(0, 2, 0);
     public Vector3 secondFloor = new Vector3(0, 6, 0);
     public Vector3 thirdFloor = new Vector3(0, 10, 0) ;
@@ -21,24 +17,20 @@ public class PlayerSpawnPlace : NetworkBehaviour
     {
         while (NetworkObjectManager.Instance.GetNetworkObject() == null)
         {
-            Debug.Log("Waiting for network object...");
-            yield return new WaitForSeconds(0.1f); // ³×Æ®¿öÅ© ¿ÀºêÁ§Æ®°¡ µî·ÏµÉ ¶§±îÁö ´ë±â
+            yield return new WaitForSeconds(0.1f); // ë„¤íŠ¸ì›Œí¬ ì˜¤ë¸Œì íŠ¸ê°€ ë“±ë¡ë  ë•Œê¹Œì§€ ëŒ€ê¸°
         }
 
         netObj = NetworkObjectManager.Instance.GetNetworkObject();
-        Debug.Log("Network object found, initializing...");
-
-        // netObj°¡ ÇÒ´çµÈ ÈÄ¿¡¾ß Dropdown ¸®½º³Ê¸¦ µî·Ï
+        // NetworkObjectê°€ ì¤€ë¹„ëœ ë’¤ì—ë§Œ ì¸µ ì´ë™ ì…ë ¥ì„ ì—°ê²°
         floorDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
     }
 
     private void Start()
     {
-        // ÄÚ·çÆ¾À» ½ÇÇàÇÏ¿© netObj°¡ ÇÒ´çµÉ ¶§±îÁö ±â´Ù¸²
         StartCoroutine(WaitForNetworkObject());
     }
 
-    // Dropdown¿¡¼­ ÃşÀ» ¼±ÅÃÇßÀ» ¶§ È£ÃâµÉ ÇÔ¼ö
+    // ì¸µ ì„ íƒì´ ë³€ê²½ë˜ë©´ í•´ë‹¹ ìœ„ì¹˜ë¡œ ì´ë™ ìš”ì²­
     private void OnDropdownValueChanged(int index)
     {
         if (netObj == null)
@@ -51,15 +43,12 @@ public class PlayerSpawnPlace : NetworkBehaviour
         {
             case 0:
                 TeleportToPosition(firstFloor);
-                Debug.Log("Player Location Change(1st)");
                 break;
             case 1:
                 TeleportToPosition(secondFloor);
-                Debug.Log("Player Location Change(2nd)");
                 break;
             case 2:
                 TeleportToPosition(thirdFloor);
-                Debug.Log("Player Location Change(3rd)");
                 break;
         }
     }
@@ -70,12 +59,10 @@ public class PlayerSpawnPlace : NetworkBehaviour
         {
             netObj.transform.position = newPosition;
             RequestPositionChangeClientRpc(newPosition);
-
-            Debug.Log("Request Teleport");
         }
         else
         {
-            // Å¬¶óÀÌ¾ğÆ®´Â ¼­¹ö¿¡ À§Ä¡ º¯°æ ¿äÃ»
+            // í´ë¼ì´ì–¸íŠ¸ëŠ” ì„œë²„ì— ìœ„ì¹˜ ë³€ê²½ ìš”ì²­
             TeleportServerRpc(newPosition);
         }
     }
@@ -96,8 +83,6 @@ public class PlayerSpawnPlace : NetworkBehaviour
         {
             XROrigin.transform.position = newPosition;
             netObj.transform.position = newPosition;
-
-            Debug.Log("Successfully teleported on client");
         }
     }
 }

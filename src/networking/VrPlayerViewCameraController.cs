@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -11,12 +10,10 @@ public class VrPlayerViewCameraController : MonoBehaviour
     {
         while (NetworkObjectManager.Instance.GetNetworkObject() == null)
         {
-            Debug.Log("Waiting for network object...");
-            yield return new WaitForSeconds(0.1f); // ³×Æ®¿öÅ© ¿ÀºêÁ§Æ®°¡ µî·ÏµÉ ¶§±îÁö ´ë±â
+            yield return new WaitForSeconds(0.1f); // ë„¤íŠ¸ì›Œí¬ ì˜¤ë¸Œì íŠ¸ê°€ ë“±ë¡ë  ë•Œê¹Œì§€ ëŒ€ê¸°
         }
 
         NetworkObject netObj = NetworkObjectManager.Instance.GetNetworkObject();
-        //playerCamera = netObj.GetComponentInChildren<Camera>();
         if (netObj != null)
         {
             target = netObj.transform.Find("Head");
@@ -27,7 +24,6 @@ public class VrPlayerViewCameraController : MonoBehaviour
         }
     }
 
- 
     private void Start()
     {
         StartCoroutine(WaitForNetworkObject());

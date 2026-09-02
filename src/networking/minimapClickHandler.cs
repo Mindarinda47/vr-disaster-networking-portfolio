@@ -12,8 +12,7 @@ public class MiniMapClickHandler : MonoBehaviour
     private GameObject currentSpawnedMarker; // 현재 스폰된 마커의 참조
     private List<GameObject> currentSpawnedFires = new List<GameObject>(); // 현재 스폰된 불 오브젝트 리스트
 
-    int spawnObjectIndex = 0; // 스폰할 오브젝트의 타입을 결정하는 인덱스 (0: 마커, 1: 불)
-    int markerstate = 0;
+    private int spawnObjectIndex = 0; // 0: 마커, 1: 화재
     private void Update()
     {
         // 왼쪽 클릭 처리: 오브젝트를 스폰
@@ -63,7 +62,6 @@ public class MiniMapClickHandler : MonoBehaviour
         );
 
         Vector3 worldPosition = MiniMapToWorldPosition(normalizedPoint);
-        Debug.Log("World Position: " + worldPosition);
 
         if (NetworkManager.Singleton.IsServer)
         {
@@ -205,18 +203,9 @@ public class MiniMapClickHandler : MonoBehaviour
 
     public void SetSpawnObjectIndex(int index)
     {
-        // index 값을 받아서 spawnObjectIndex 값을 설정
         spawnObjectIndex = index;
-
-        if (index == 0)
-        {
-            Debug.Log("Marker selected for spawning.");
-        }
-        else if (index == 1)
-        {
-            Debug.Log("Fire selected for spawning.");
-        }
     }
+
     [ServerRpc]
     private void SpawnMarkerServerRpc(Vector3 position)
     {
