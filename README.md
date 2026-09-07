@@ -4,6 +4,35 @@ PC 관제자와 VR 참가자가 하나의 재난 훈련 공간을 공유하는 3
 
 > [프로젝트 시연 영상](https://www.youtube.com/watch?v=iOX_i1il5Sw) · [네트워크 구조](docs/architecture.md) · [담당 범위](docs/contribution.md)
 
+## 동작 한눈에 보기
+
+<table>
+<tr>
+<td width="50%" valign="top">
+<img src="docs/media/supervisor-marker.gif" alt="PC 관제 화면에서 목표 마커 생성" width="100%"><br>
+<strong>PC 관제 — 목표 마커 생성</strong><br>
+미니맵에서 지정한 위치에 참가자 안내용 마커를 생성합니다.
+</td>
+<td width="50%" valign="top">
+<img src="docs/media/vr-client-view.gif" alt="VR 클라이언트 시점 플레이" width="100%"><br>
+<strong>VR Client — 참가자 시점</strong><br>
+VR 참가자가 재난 훈련 공간을 탐색하고 오브젝트와 상호작용합니다.
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="docs/media/supervisor-floor-change.gif" alt="PC 관제 화면에서 참가자 층 이동" width="100%"><br>
+<strong>PC 관제 — 층 이동</strong><br>
+관제 화면에서 참가자의 훈련 층을 전환합니다.
+</td>
+<td width="50%" valign="top">
+<img src="docs/media/supervisor-fire-control.gif" alt="PC 관제 화면에서 화재 생성과 제거" width="100%"><br>
+<strong>PC 관제 — 화재 생성·제거</strong><br>
+화재 오브젝트를 배치하거나 제거해 훈련 상황을 조정합니다.
+</td>
+</tr>
+</table>
+
 ## 프로젝트 정보
 
 | 항목 | 내용 |
@@ -14,6 +43,12 @@ PC 관제자와 VR 참가자가 하나의 재난 훈련 공간을 공유하는 3
 | 실행 역할 | PC Host/Server 1명 ↔ VR Client 1명 |
 | 개발 환경 | Unity 2022.3.35f1, C# |
 | 주요 기술 | Netcode for GameObjects 1.9.1, XR Interaction Toolkit 2.5.4, Vivox 16.5.2 |
+
+## 화면 구성
+
+<img src="docs/media/interface-overview.png" alt="시작, 참가자 설정, 대기와 PC 관제 UI 구성" width="100%">
+
+시작·참가자 설정·대기 화면과 PC 관제 화면을 역할별로 분리했습니다. 관제 화면에서는 참가자 시점 모니터링과 층 이동, 마커·화재 제어를 한곳에서 수행합니다.
 
 ## 해결한 핵심 과제
 
@@ -28,6 +63,8 @@ Host는 PC 관제 화면을 사용하고, 연결된 Client에는 VR 플레이어
 ### 3. 관제 화면을 실시간 피드백 도구로 연결
 
 PC 미니맵 좌표를 Raycast로 월드 좌표로 변환한 뒤 마커와 화재 오브젝트를 서버에서 생성·제거했습니다. 마커는 한 번에 하나만 유지하고, 화재는 최대 개수를 제한해 관제자가 참가자의 이동 목표와 훈련 난이도를 조절하도록 했습니다.
+
+<img src="docs/media/supervisor-client-interaction.png" alt="PC 관제자와 VR 참가자의 상호작용 구성" width="100%">
 
 ### 4. 비동기 생성 순서 처리
 
@@ -44,6 +81,12 @@ Client 연결 직후에는 플레이어 NetworkObject 등록이 끝나지 않을
 | [`PlayerSpawnPlace.cs`](src/networking/PlayerSpawnPlace.cs) | NetworkObject 등록 대기, ServerRpc/ClientRpc 기반 위치 이동 |
 
 연동 코드: [`NetworkObjectManager.cs`](src/networking/NetworkObjectManager.cs) · [`VrPlayerViewCameraController.cs`](src/networking/VrPlayerViewCameraController.cs) · [`PCScene.cs`](src/networking/PCScene.cs) · [`VoiceChat.cs`](src/networking/VoiceChat.cs)
+
+### Netcode 적용 구성
+
+<img src="docs/media/netcode-implementation.png" alt="ServerRpc 기반 플레이어 생성과 NetworkObject, NetworkTransform 설정" width="100%">
+
+서버의 VR 플레이어 생성 요청과 `NetworkObject` 소유권 설정, `NetworkTransform` 동기화 구성을 함께 적용했습니다. 실제 구현은 위 대표 코드 링크에서 확인할 수 있습니다.
 
 ## 네트워크 구조
 
